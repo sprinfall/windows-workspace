@@ -1,0 +1,78 @@
+#include "resource.h"
+
+// Icon
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APP_NORMAL ICON "app-normal.ico"
+IDI_APP_SMALL ICON "app-small.ico"
+
+// Menu
+
+IDR_MENU_TRAY MENU
+BEGIN
+    POPUP ""
+    BEGIN
+    MENUITEM "选项...",         IDM_OPTION
+/*  MENUITEM SEPARATOR
+    POPUP "透明"
+    BEGIN
+        MENUITEM "无透明",      IDM_TRANS_0
+        MENUITEM SEPARATOR
+        MENUITEM "10 %",        IDM_TRANS_1
+        MENUITEM "20 %",        IDM_TRANS_2
+        MENUITEM "30 %",        IDM_TRANS_3
+        MENUITEM "40 %",        IDM_TRANS_4
+        MENUITEM "50 %",        IDM_TRANS_5
+        MENUITEM "60 %",        IDM_TRANS_6
+        MENUITEM "70 %",        IDM_TRANS_7
+        MENUITEM "80 %",        IDM_TRANS_8
+        MENUITEM "90 %",        IDM_TRANS_9
+    END */
+    MENUITEM SEPARATOR
+    MENUITEM "开机自动运行", IDM_AUTORUN
+    MENUITEM "退出", IDM_EXIT
+    END
+END
+
+IDR_MENU_FLOAT MENU
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "新建",        IDM_CREATE
+        MENUITEM "删除",        IDM_REMOVE
+        MENUITEM SEPARATOR
+        MENUITEM "退出",        IDM_EXIT
+    END
+END
+
+// Dialog
+
+// Page 1: 外观
+IDD_PAGE_1 DIALOGEX 0, 0, 227, 214
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX "大小", IDC_STATIC, 3, 4, 220, 60
+    LTEXT "设置主窗口每一格的大小为：", IDC_STATIC, 13, 18, 150, 8
+    LTEXT "长", IDC_STATIC, 13, 32, 12, 8
+    EDITTEXT IDC_SIZE_X, 32, 30, 28, 12, ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
+    CONTROL "", IDC_SPIN_SIZE_X, "msctls_updown32", UDS_SETBUDDYINT | UDS_ARROWKEYS | WS_GROUP | WS_TABSTOP,60,30,11,12
+    LTEXT "高", IDC_STATIC, 13, 48, 12, 8
+    EDITTEXT IDC_SIZE_Y, 32, 46, 28, 12, ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
+    CONTROL "", IDC_SPIN_SIZE_Y, "msctls_updown32", UDS_SETBUDDYINT | UDS_ARROWKEYS | WS_GROUP | WS_TABSTOP,60,46,11,12
+    PUSHBUTTON "使用默认大小", IDC_SIZE_USEDEF, 125, 46, 86, 14, WS_GROUP
+
+    GROUPBOX "颜色", IDC_STATIC, 3, 73, 105, 62
+    PUSHBUTTON "", IDC_COLOR_BR, 13, 84, 21, 12
+    LTEXT "边框", IDC_STATIC, 42, 86, 45, 8
+    PUSHBUTTON "", IDC_COLOR_BG, 13, 100, 21, 12
+    LTEXT "背景", IDC_STATIC, 42, 102, 45, 8
+    PUSHBUTTON "", IDC_COLOR_HL, 13, 116, 21, 12
+    LTEXT "高亮", IDC_STATIC, 42, 118, 45, 8
+
+    GROUPBOX "透明", IDC_STATIC, 118, 73, 105, 62
+    CONTROL "使用透明", IDC_CHECK_TRANS, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 128, 87, 64, 10
+    COMBOBOX IDC_COMBO_TRANS, 128, 100, 52, 12, CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT " (%)",IDC_STATIC, 185, 102, 16, 8
+END
