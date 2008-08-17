@@ -192,10 +192,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\log.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -234,10 +230,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\log.h"
-				>
-			</File>
-			<File
 				RelativePath=".\menuer.h"
 				>
 			</File>
@@ -268,11 +260,11 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\app-normal.ico"
+				RelativePath=".\icon\app16.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\app-small.ico"
+				RelativePath=".\icon\app32.ico"
 				>
 			</File>
 			<File

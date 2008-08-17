@@ -30,8 +30,6 @@ private:
     size_t index_; // Index of the current workspace (zero based)
     size_t jumptoIndex_; // Used to save the index jumped to. Ugly :(
 
-    // With using vector instead of list, [jumpto] is faster but [remove]
-    // will be slower. Suppose users won't do [remove] frequently.
     std::vector<Workspace *> workspaces_;
 };
 

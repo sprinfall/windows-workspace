@@ -1,6 +1,8 @@
 #include "option.h"
 #include "global.h"
 #include <userenv.h>
+#include <commctrl.h>
+#include <algorithm>
 
 Option option;
 Buffer buffer;
@@ -22,6 +24,13 @@ Buffer buffer;
 #define DefHlColor 0xadad5c
 #define DefBgColor 0xffffff
 
+#define DefHkNext (MAKEWORD(VK_RIGHT, HOTKEYF_ALT))
+#define DefHkPrev (MAKEWORD(VK_LEFT, HOTKEYF_ALT))
+#define DefHkTail (MAKEWORD(VK_DOWN, HOTKEYF_ALT))
+#define DefHkHead (MAKEWORD(VK_UP, HOTKEYF_ALT))
+#define DefHkCreate (MAKEWORD(VK_INSERT, HOTKEYF_ALT))
+#define DefHkRemove (MAKEWORD(VK_DELETE, HOTKEYF_ALT))
+
 
 #define REG_SAVE_DW(regKey, name, value)\
     RegSetValueEx(regKey, name, 0, REG_DWORD, (LPBYTE)&value, sizeof(DWORD));
@@ -31,6 +40,19 @@ Buffer buffer;
 #define VALIDATE(var, min, max, def) if (var < min || var > max) { var = def; }
 #define VALIDATE_MAX(var, max, def) if (var > max) { var = def; }
 
+void reg_read_hotkey(HKEY hkey, const TCHAR *name, WORD &hk, WORD def)
+{
+    DWORD temp = 0;
+    DWORD size = sizeof DWORD;
+    REG_READ_DW(hkey, name, temp, size);
+    hk = LOWORD(temp);
+    if (!hotkey_is_valid(hk)) { hk = def; }
+}
+void reg_save_hotkey(HKEY hkey, const TCHAR *name, WORD &hk)
+{
+    DWORD temp = hk;
+    REG_SAVE_DW(hkey, name, temp);
+}
 
 void Option::load()
 {
@@ -67,14 +89,20 @@ void Option::load()
     option.hl_color &= 0x00ffffff;
     option.bg_color &= 0x00ffffff;
 
-    RegCloseKey(hkey);
+    reg_read_hotkey(hkey, _T("hk_next"), option.hk_next, DefHkNext);
+    reg_read_hotkey(hkey, _T("hk_prev"), option.hk_prev, DefHkPrev);
+    reg_read_hotkey(hkey, _T("hk_tail"), option.hk_tail, DefHkTail);
+    reg_read_hotkey(hkey, _T("hk_head"), option.hk_head, DefHkHead);
+    reg_read_hotkey(hkey, _T("hk_create"), option.hk_create, DefHkCreate);
+    reg_read_hotkey(hkey, _T("hk_remove"), option.hk_remove, DefHkRemove);
 
+    RegCloseKey(hkey);
 
     tifstream fi(exceptPath_.c_str());
     if (fi.fail()) { return; }
     tstring line;
     while (getline(fi, line)) {
-        line = strim(line, _T(' '));
+        line = str_trim(line);
         if (!line.empty()) { excepts_.push_back(line); }
     }
     fi.close();
@@ -102,6 +130,13 @@ void Option::save()
     REG_SAVE_DW(hkey, _T("hl_color"), option.hl_color);
     REG_SAVE_DW(hkey, _T("bg_color"), option.bg_color);
 
+    reg_save_hotkey(hkey, _T("hk_next"), option.hk_next);
+    reg_save_hotkey(hkey, _T("hk_prev"), option.hk_prev);
+    reg_save_hotkey(hkey, _T("hk_tail"), option.hk_tail);
+    reg_save_hotkey(hkey, _T("hk_head"), option.hk_head);
+    reg_save_hotkey(hkey, _T("hk_create"), option.hk_create);
+    reg_save_hotkey(hkey, _T("hk_remove"), option.hk_remove);
+
     RegCloseKey(hkey);
 
     tofstream fo(exceptPath_.c_str());
@@ -120,6 +155,26 @@ bool Option::isAlwaysShow(HWND hwnd)
 {
     return isAlwaysShowClass(hwnd) || isAlwaysShowProgram(hwnd);
 }
+
+bool Option::isExcept(const tstring &path)
+{
+    std::list<tstring>::const_iterator i;
+    for (i = excepts_.begin(); i != excepts_.end(); ++i) {
+        if (path == *i) { return true; }
+    }
+    return false;
+}
+
+void Option::except_clr()
+{
+    excepts_.clear();
+}
+
+void Option::except_add(const tstring &path)
+{
+    excepts_.push_back(path);
+}
+
 
 void Option::updatePosition()
 {
@@ -154,6 +209,13 @@ void Option::useDefault()
     option.br_color = DefBrColor;
     option.hl_color = DefHlColor;
     option.bg_color = DefBgColor;
+
+    option.hk_next = DefHkNext;
+    option.hk_prev = DefHkPrev;
+    option.hk_tail = DefHkTail;
+    option.hk_head = DefHkHead;
+    option.hk_create = DefHkCreate;
+    option.hk_remove = DefHkRemove;
 }
 
 
@@ -212,6 +274,26 @@ void Buffer::remove()
     DeleteObject(hlbrh);
 }
 
+void Buffer::update_br_color()
+{
+    DeleteObject(brpen);
+    DeleteObject(brbrh);
+    brpen = CreatePen(PS_SOLID | PS_INSIDEFRAME, BdrSize, option.br_color);
+    brbrh = CreateSolidBrush(option.br_color);
+}
+
+void Buffer::update_bg_color()
+{
+    DeleteObject(bgbrh);
+    bgbrh = CreateSolidBrush(option.bg_color);
+}
+
+void Buffer::update_hl_color()
+{
+    DeleteObject(hlbrh);
+    hlbrh = CreateSolidBrush(option.hl_color);
+}
+
 void Buffer::update()
 {
     remove();
@@ -222,7 +304,6 @@ void Buffer::update_guicx()
 {
     guicx = option.number * (option.cell_cx + BdrSize) + BdrSize;
 }
-
 void Buffer::update_guicy()
 {
     guicx = option.cell_cy + 2 * BdrSize;

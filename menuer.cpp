@@ -30,10 +30,10 @@ void Menuer::init()
 {
     nid_.cbSize = sizeof(nid_);
     nid_.hWnd = app_hwnd;
-    nid_.uID = IDI_APP_SMALL;
+    nid_.uID = IDI_APP_16;
     nid_.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     nid_.uCallbackMessage = WM_USER;
-    nid_.hIcon = LoadIcon(app_hins, MAKEINTRESOURCE(IDI_APP_SMALL));
+    nid_.hIcon = LoadIcon(app_hins, MAKEINTRESOURCE(IDI_APP_16));
     // nid_.szTip, see updateTip()
     Shell_NotifyIcon(NIM_ADD, &nid_);
 
@@ -48,12 +48,11 @@ void Menuer::popupTray()
     //EnableMenuItem(trayMenu_, IDM_TRANS, MF_BYCOMMAND |
      //   (optShown ? MF_GRAYED : MF_ENABLED));
 
-    POINT point;
-    GetCursorPos(&point);
     // Fix the issue that the menu doesn't disappear when user presses
     // ESCAPE key or clicks somewhere out of the menu
     SetForegroundWindow(app_hwnd);
-    TrackPopupMenuEx(trayMenu_, TPM_LEFTALIGN, point.x, point.y, app_hwnd, NULL);
+
+    menu_popup(trayMenu_, app_hwnd);
 }
 
 void Menuer::popupFloat()
@@ -63,9 +62,7 @@ void Menuer::popupFloat()
     EnableMenuItem(floatMenu_, IDM_REMOVE, MF_BYCOMMAND |
         (option.number > MinNumber ? MF_ENABLED : MF_GRAYED));
 
-    POINT point;
-    GetCursorPos(&point);
-    TrackPopupMenuEx(floatMenu_, TPM_LEFTALIGN, point.x, point.y, app_hwnd, NULL);
+    menu_popup(floatMenu_, app_hwnd);
 }
 
 void Menuer::updateTip(size_t current, size_t total)
@@ -81,7 +78,7 @@ void Menuer::loadMenu()
     trayMenu_ = GetSubMenu(LoadMenu(app_hins, MAKEINTRESOURCE(IDR_MENU_TRAY)), 0);
     floatMenu_ = GetSubMenu(LoadMenu(app_hins, MAKEINTRESOURCE(IDR_MENU_FLOAT)), 0);
 
-    if (autorun_check()) { checkMenu(IDM_AUTORUN, true); }
+    if (autorun_is_set()) { checkMenu(IDM_AUTORUN, true); }
     checkMenu(TransMap[option.transparency], true);
 }
 
@@ -90,15 +87,15 @@ void Menuer::checkMenu(DWORD item, bool checked)
     CheckMenuItem(trayMenu_, item, MF_BYCOMMAND | (checked ? MF_CHECKED : MF_UNCHECKED));
 }
 
-void Menuer::checkTransMenu(DWORD newValue)
-{
-    if (option.transparency == newValue) { return; }
-
-    set_transparency(app_hwnd, newValue);
-    checkMenu(TransMap[option.transparency], false);
-    option.transparency = newValue;
-    checkMenu(TransMap[option.transparency], true);
-}
+//void Menuer::checkTransMenu(DWORD newValue)
+//{
+//    if (option.transparency == newValue) { return; }
+//
+//    set_transparency(app_hwnd, newValue);
+//    checkMenu(TransMap[option.transparency], false);
+//    option.transparency = newValue;
+//    checkMenu(TransMap[option.transparency], true);
+//}
 
 void Menuer::checkAutorunMenu()
 {

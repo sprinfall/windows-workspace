@@ -13,7 +13,7 @@ public:
     void popupFloat();
     void updateTip(size_t current, size_t total);
 
-    void checkTransMenu(DWORD newValue);
+    //void checkTransMenu(DWORD newValue);
     void checkAutorunMenu();
 
 private:

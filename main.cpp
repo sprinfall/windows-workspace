@@ -4,9 +4,9 @@
 #include "global.h"
 #include <windowsx.h>
 
+#pragma comment(lib, "userenv")
+#pragma comment(lib, "psapi")
 #pragma comment(lib, "comctl32")
-#pragma comment(lib, "Userenv")
-#pragma comment(lib, "psapi.lib")
 #pragma comment(linker, \
     "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' \
    version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' \
@@ -18,25 +18,29 @@ TCHAR       app_name[] = _T("Windows Workspace");
 
 int WINAPI _tWinMain(HINSTANCE instance, HINSTANCE, PTSTR cmdline, int cmdshow)
 {
-    //if (FindWindow(AppName, AppName)) { return 1; }
+    // keep single instance
+    HANDLE mutex = CreateMutex(NULL, FALSE, app_name);
+    if (mutex && ERROR_ALREADY_EXISTS == GetLastError()) {
+        return 1;
+    }
     app_hins = instance;
 
     option.load();
     buffer.create();
 
     WNDCLASSEX wcex;
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    wcex.lpfnWndProc = DesktopView::wndproc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = instance;
-    wcex.hIcon = LoadIcon(instance, MAKEINTRESOURCE(IDI_APP_NORMAL));
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = buffer.bgbrh; // configurable bg color
-    wcex.lpszMenuName = NULL;
-    wcex.lpszClassName = app_name;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APP_SMALL));
+    wcex.cbSize         = sizeof(WNDCLASSEX);
+    wcex.style          = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+    wcex.lpfnWndProc    = DesktopView::wndproc;
+    wcex.cbClsExtra     = 0;
+    wcex.cbWndExtra     = 0;
+    wcex.hInstance      = instance;
+    wcex.hIcon          = LoadIcon(instance, MAKEINTRESOURCE(IDI_APP_32));
+    wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground  = buffer.bgbrh; // configurable bg color
+    wcex.lpszMenuName   = NULL;
+    wcex.lpszClassName  = app_name;
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APP_16));
 
     if (!RegisterClassEx(&wcex)) { return 1; }
 
@@ -69,5 +73,6 @@ int WINAPI _tWinMain(HINSTANCE instance, HINSTANCE, PTSTR cmdline, int cmdshow)
     option.save();
     buffer.remove();
 
+    ReleaseMutex(mutex);
     return (int)msg.wParam;
 }

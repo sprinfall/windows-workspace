@@ -19,7 +19,7 @@
 
 #define MinCellCy 16
 #define MaxCellCy 36
-#define DefCellCy 21
+#define DefCellCy 18
 
 #define BdrSize 1 // window border
 #define GapSize 4 // gap between border and highlight
@@ -41,13 +41,22 @@ public:
             hl_color, // highlight
             bg_color; // background
 
+    WORD   hk_next, hk_prev, hk_tail, hk_head;
+    WORD   hk_create, hk_remove;
+
 public:
     void load();
     void save();
 
     bool isAlwaysShow(HWND hwnd);
 
+    bool isExcept(const tstring &path);
+    void except_clr();
+    void except_add(const tstring &path);
+
     void updatePosition();
+
+    std::list<tstring> excepts_;
 
 private:
     void init();
@@ -62,8 +71,6 @@ private:
     tstring exceptPath_;
 
     tstring configRKey_; // HKCU\Software\<app_name>
-
-    std::list<tstring> excepts_;
 };
 
 struct Buffer {
@@ -76,6 +83,9 @@ struct Buffer {
     void update();
     void update_guicx();
     void update_guicy();
+    void update_br_color();
+    void update_bg_color();
+    void update_hl_color();
 };
 
 extern Option option;

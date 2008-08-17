@@ -48,19 +48,19 @@ LRESULT DesktopView::dispatch(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             remove();
             break;
         case IDM_OPTION:
-            OptionView::create();
+            option_view_create();
             break;
         case IDM_AUTORUN:
             menuer_->checkAutorunMenu();
             break;
         default:
-            {
-                // Transparency
-                WORD cmd = LOWORD(wParam);
-                if (cmd >= IDM_TRANS_0 && cmd <= IDM_TRANS_9 ) {
-                    menuer_->checkTransMenu(cmd - IDM_TRANS_0);
-                }
-            }
+            //{
+            //    // Transparency
+            //    WORD cmd = LOWORD(wParam);
+            //    if (cmd >= IDM_TRANS_0 && cmd <= IDM_TRANS_9 ) {
+            //        menuer_->checkTransMenu(cmd - IDM_TRANS_0);
+            //    }
+            //}
             break;
         }
         break;
