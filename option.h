@@ -2,8 +2,9 @@
 #define _OPTION_H_
 
 #include "type.h"
+#include "tstring.h"
 #include <windows.h>
-#include <list>
+#include <set>
 
 #define MinTransparency 0
 #define MaxTransparency 9
@@ -26,66 +27,69 @@
 
 class Option {
 public:
-    DWORD   screen_cx, screen_cy;
+	DWORD	screen_cx, screen_cy;
 
-    DWORD   transparency; // 0, 1 ~ 9 (0%, 10% ~ 90%)
-    DWORD   number;
+	DWORD	transparency; // 0, 1 ~ 9 (0%, 10% ~ 90%)
+	DWORD	number;
 
-    DWORD   cell_cx,
-            cell_cy;
+	DWORD	cell_cx,
+			cell_cy;
 
-    LONG    position_x,
-            position_y;
+	LONG	position_x,
+			position_y;
 
-    DWORD   br_color, // border
-            hl_color, // highlight
-            bg_color; // background
+	DWORD	br_color, // border
+			hl_color, // highlight
+			bg_color; // background
 
-    WORD   hk_next, hk_prev, hk_tail, hk_head;
-    WORD   hk_create, hk_remove;
+	WORD	hk_next,
+			hk_prev,
+			hk_tail,
+			hk_head,
+			hk_create,
+			hk_remove;
+
+	std::set<tstring>	except_app,
+						except_cls;
 
 public:
-    void load();
-    void save();
+	void load();
+	void save();
 
-    bool isAlwaysShow(HWND hwnd);
+	bool is_except_cls(HWND hwnd);
+	bool is_except_app(HWND hwnd);
+	bool is_except(HWND hwnd);
 
-    bool isExcept(const tstring &path);
-    void except_clr();
-    void except_add(const tstring &path);
+	void except_clr();
+	void except_add(const TCHAR *path);
 
-    void updatePosition();
-
-    std::list<tstring> excepts_;
+	void updatePosition();
 
 private:
-    void init();
-    void useDefault();
+	void init();
+	void useDefault();
 
-    bool isAlwaysShowClass(HWND hwnd);
-    bool isAlwaysShowProgram(HWND hwnd);
+	void load_except();
 
-    tstring configPath_; // <User Home>\<app_name>
-    // The file which contains the list of exceptional programs
-    // Windows of an exceptional program will show in all workspaces
-    tstring exceptPath_;
-
-    tstring configRKey_; // HKCU\Software\<app_name>
+	TCHAR config_path_[MAX_PATH]; // <user_home>\<app_name>
+	TCHAR config_rkey_[MAX_PATH]; // HKCU\Software\<app_name>
+	TCHAR except_app_file_[MAX_PATH]; // <config_path_>\<except_app.txt>
+	TCHAR except_cls_file_[MAX_PATH]; // <config_path_>\<except_cls.txt>
 };
 
 struct Buffer {
-    HPEN    brpen;
-    HBRUSH  brbrh, bgbrh, hlbrh;
-    DWORD   guicx, guicy;
+	HPEN    brpen;
+	HBRUSH  brbrh, bgbrh, hlbrh;
+	DWORD   guicx, guicy;
 
-    void create();
-    void remove();
-    void update();
-    void update_guicx();
-    void update_guicy();
-    void update_br_color();
-    void update_bg_color();
-    void update_hl_color();
+	void create();
+	void remove();
+	void update();
+	void update_guicx();
+	void update_guicy();
+	void update_br_color();
+	void update_bg_color();
+	void update_hl_color();
 };
 
 extern Option option;

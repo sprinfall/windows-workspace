@@ -1,12 +1,12 @@
 #include <windows.h>
 #include <prsht.h>
 
-#define IDC_STATIC              -1
+#define IDC_STATIC				-1
 
-#define IDI_APP_32              101
-#define IDI_APP_16              102
+#define IDI_APP_32				101
+#define IDI_APP_16				102
 
-#define IDR_MENU_TRAY           111
+#define IDR_MENU_TRAY			111
 #define IDR_MENU_FLOAT          112
 #define IDR_MENU_EXCEPT_FLOAT   113
 
@@ -26,8 +26,8 @@
 #define IDC_COLOR_HL            1003
 #define IDC_CHECK_TRANS         1004
 #define IDC_COMBO_TRANS         1005
-#define IDC_EDIT_CELL_CX              1006
-#define IDC_EDIT_CELL_CY              1007
+#define IDC_EDIT_CELL_CX        1006
+#define IDC_EDIT_CELL_CY		1007
 #define IDC_SPIN_CELL_CX         1008
 #define IDC_SPIN_CELL_CY         1009
 #define IDC_NUMBER              1010

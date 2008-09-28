@@ -1,9 +1,9 @@
 #ifndef _DESKTOP_VIEW_H_
 #define _DESKTOP_VIEW_H_
 
-#include "menuer.h"
 #include "option.h"
 #include "global.h"
+#include "menu.h"
 #include <windows.h>
 
 class Desktop;
@@ -34,7 +34,6 @@ private:
     int index_, // index of the current desktop (zero based)
         total_; // total number of the desktops
 
-    Menuer *menuer_;
     Desktop *desktop_;
 
     PAINTSTRUCT ps_;
@@ -70,7 +69,7 @@ inline void DesktopView::resize(bool redraw)
 
 inline void DesktopView::updateTrayTip()
 {
-    menuer_->updateTip(index_ + 1, total_);
+    menu_update_tip(index_ + 1, total_);
 }
 
 inline void DesktopView::invalidateThumbnail(int index)

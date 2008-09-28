@@ -1,6 +1,7 @@
 #include "resource.h"
 #include "option.h"
 #include "global.h"
+#include "hotkey.h"
 #include <commctrl.h>
 #include <list>
 
@@ -67,13 +68,6 @@ prop_sheet_proc(HWND hdlg, UINT msg, LPARAM lParam)
     return 0;
 }
 
-//static void
-//correctDlgItemInt(HWND hdlg, int item, UINT min, UINT max, UINT def)
-//{
-//    UINT size = GetDlgItemInt(hdlg, item, 0, FALSE);
-//    if (size < min || size > max) { SetDlgItemInt(hdlg, item, def, FALSE); }
-//}
-
 inline
 static void ctrl_enable(HWND ctrl, bool enabled)
 {
@@ -94,6 +88,20 @@ static const TCHAR* TransNames[] = {
     _T("10"), _T("20"), _T("30"), _T("40"), _T("50"),
     _T("60"), _T("70"), _T("80"), _T("90")
 };
+
+
+static void
+center_screen(HWND hwnd)
+{
+    int screen_cx = GetSystemMetrics(SM_CXSCREEN);
+    int screen_cy = GetSystemMetrics(SM_CYSCREEN);
+
+    RECT rect;
+    GetWindowRect(hwnd, &rect);
+    LONG cx = rect.right - rect.left;
+    LONG cy = rect.bottom - rect.top;
+    SetWindowPos(hwnd, NULL, (screen_cx-cx)/2, (screen_cy-cy)/2, 0, 0, SWP_NOSIZE);
+}
 
 static BOOL CALLBACK
 prop_page1_proc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -146,7 +154,7 @@ prop_page1_proc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
             bool enabled = option.transparency > 0;
             ctrl_set_check(hdlg, IDC_CHECK_TRANS, enabled);
             ctrl_enable(combo_trans, enabled);
-            // default trans: 30%
+            // default: 30%
             SetWindowText(combo_trans, enabled ? TransNames[option.transparency-1] : TransNames[2]);
         }
 
@@ -178,7 +186,7 @@ prop_page1_proc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
                         trans = (DWORD)(_ttoi(str_trans) / 10); // "x0" -> x
                     }
                     if (trans != option.transparency) {
-                        set_transparency(app_hwnd, trans);
+                        set_trans(app_hwnd, trans);
                         option.transparency = trans;
                     }
                 }
@@ -224,8 +232,7 @@ prop_page1_proc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
         // Since ES_READONLY is used for the edit control, it should be
         // unnecessary to do correction any more
         //case EN_KILLFOCUS:
-        //    correctDlgItemInt(hdlg, IDC_EDIT_CELL_CX, MinCellCx, MaxCellCx, DefCellCx);
-        //    correctDlgItemInt(hdlg, IDC_EDIT_CELL_CY, MinCellCy, MaxCellCy, DefCellCy);
+        //    //correct dialog item int here ...
         //    break;
 
         case CBN_SELCHANGE: // combobox select change
@@ -365,11 +372,23 @@ list_init(HWND lv)
     lvc.cx      = 280;
     ListView_InsertColumn(lv, 0, &lvc);
 
-    // TODO: private option.excepts_ ?
-    std::list<tstring>::const_iterator i;
-    for (i = option.excepts_.begin(); i != option.excepts_.end(); ++i) {
+    // TODO:
+    std::set<tstring>::const_iterator i;
+    for (i = option.except_app.begin(); i != option.except_app.end(); ++i) {
         list_add_item(lv, *i);
     }
+}
+
+// Whether @item exists in @lv
+static bool
+list_exists(HWND lv, const TCHAR *item)
+{
+    for (int i = 0; i < ListView_GetItemCount(lv); ++i) {
+        TCHAR text[MAX_PATH];
+        ListView_GetItemText(lv, i, 0, text, MAX_PATH);
+        if (0 == _tcsicmp(item, text)) { return true; }
+    }
+    return false;
 }
 
 static BOOL CALLBACK
@@ -428,12 +447,12 @@ prop_page2_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
                 // text changed; if it is a valid path, enalbe ADD button
                 TCHAR text[MAX_PATH];
                 GetDlgItemText(hdlg, IDC_EDIT_EXCEPT_ADD, text, MAX_PATH);
-                if (_tcslen(text) > 0 && is_file_existed(text, _T(".exe")) &&
-                    !option.isExcept(text)) { // already exists
-                    EnableWindow(push_ex_add, TRUE);
-                } else {
-                    EnableWindow(push_ex_add, FALSE);
-                }
+                tstring temp(text);
+                temp = temp.trim();
+                bool enabled = !temp.empty()
+                    && is_file_existed(temp.c_str(), _T(".exe"))
+                    && !list_exists(list_ex, temp.c_str());
+                ctrl_enable(push_ex_add, enabled);
             }
             break;
 
@@ -469,6 +488,8 @@ prop_page2_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
                         UINT state = ListView_GetItemState(list_ex, i, LVIS_SELECTED);
                         if (state & LVIS_SELECTED) {
                             ListView_DeleteItem(list_ex, i);
+                            // Update the ADD button in case the ADD_TEXT equals to the one just removed
+                            SendMessage(hdlg, WM_COMMAND, (WPARAM)MAKELONG(IDC_EDIT_EXCEPT_ADD, EN_UPDATE), 0);
                         }
                     }
                     is_ex_changed = true;
@@ -504,7 +525,7 @@ prop_page3_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
         // set hotkey rules
         WPARAM wp = (WPARAM)HKCOMB_NONE | HKCOMB_S;
         LPARAM lp = MAKELPARAM(HOTKEYF_ALT, 0);
-        SendMessage(hk_next,    HKM_SETRULES, wp, lp); // no shift; alt default
+        SendMessage(hk_next,    HKM_SETRULES, wp, lp); // no SHIFT; ALT as default
         SendMessage(hk_prev,    HKM_SETRULES, wp, lp);
         SendMessage(hk_tail,    HKM_SETRULES, wp, lp);
         SendMessage(hk_head,    HKM_SETRULES, wp, lp);

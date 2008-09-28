@@ -180,6 +180,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\autorun.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\desktop-view.cpp"
 				>
 			</File>
@@ -192,11 +196,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hotkey.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\log.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\menuer.cpp"
+				RelativePath=".\menu.cpp"
 				>
 			</File>
 			<File
@@ -205,6 +217,10 @@
 			</File>
 			<File
 				RelativePath=".\option.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tstring.cpp"
 				>
 			</File>
 			<File
@@ -218,6 +234,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\autorun.h"
+				>
+			</File>
+			<File
 				RelativePath=".\desktop-view.h"
 				>
 			</File>
@@ -230,7 +250,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\menuer.h"
+				RelativePath=".\hotkey.h"
+				>
+			</File>
+			<File
+				RelativePath=".\log.h"
+				>
+			</File>
+			<File
+				RelativePath=".\menu.h"
 				>
 			</File>
 			<File
@@ -243,6 +271,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tstring.h"
 				>
 			</File>
 			<File

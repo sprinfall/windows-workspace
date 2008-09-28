@@ -14,17 +14,13 @@ public:
     bool remove();
     bool jumpto(size_t index);
 
-private:
-    Desktop(const Desktop&);
-    Desktop& operator=(const Desktop&);
-
     void __create();
     void __remove();
     void __jumpto();
 
-    static unsigned int __stdcall createThread(void *arg);
-    static unsigned int __stdcall removeThread(void *arg);
-    static unsigned int __stdcall jumptoThread(void *arg);
+private:
+    Desktop(const Desktop&);
+    Desktop& operator=(const Desktop&);
 
 private:
     size_t index_; // Index of the current workspace (zero based)

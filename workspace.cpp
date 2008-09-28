@@ -23,7 +23,7 @@ void Workspace::enumWindows()
     windows_.clear();
 
     focus_ = GetForegroundWindow();
-    if (!focus_) { LOG(_T("GetForegroundWindow failed")); }
+    //if (!focus_) { LOG(_T("GetForegroundWindow failed")); }
     EnumWindows(&Workspace::enumWindowsProc, (LPARAM)this);
 }
 
@@ -65,7 +65,7 @@ BOOL CALLBACK Workspace::enumWindowsProc(HWND hwnd, LPARAM IParam)
         return TRUE;
     }
 
-    if (option.isAlwaysShow(hwnd)) {
+    if (option.is_except(hwnd)) {
         return true;
     }
 
